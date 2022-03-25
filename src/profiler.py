@@ -7,7 +7,12 @@ OUTPUT_DIR = "results"
 print(f"======= running the profiler for {VCF_DIR} ========")
 sig.sigProfilerExtractor(
     input_type="vcf", 
-    output=OUTPUT_DIR, 
-    input_data=VCF_DIR, 
+    output="results", 
+    input_data="pvp_input", 
     reference_genome="GRCh38",
-    maximum_signatures=5)
+    opportunity_genome="GRCh38",
+    minimum_signatures=1,
+    maximum_signatures=10,
+    cosmic_version=3.2,
+    collapse_to_SBS96=False,
+    get_all_signature_matrices=False)
