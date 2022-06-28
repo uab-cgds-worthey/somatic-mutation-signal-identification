@@ -81,9 +81,9 @@ This isn't the greatest but if it's what it take to use the tool it may be an ac
        ```
 2. Download the required [supporting data files](https://github.com/maxwellsh/DIGDriver/wiki/02:-Data-files) for running
    DigDiver
-    1. Download the pretrained models that might work out of the box ( Brandon's best guess ¯\_(ツ)_/¯ ) using the [download script](./setup/downloadDigModels.sh)
+    1. Download the pretrained models that might work out of the box ( Brandon's best guess ¯\_(ツ)\_/¯ ) using the
+       [download script](./setup/downloadDigModels.sh)
     2. ```sh
-         cd setup
-         ./downloadDigModels.sh
-         ```
-    3. 
+         ./setup/downloadDigModels.sh
+       ```
+    3. All supporting data will be downloaded under `data/dig_driver/` for use with DigDriver
