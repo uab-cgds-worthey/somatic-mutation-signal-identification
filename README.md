@@ -1,4 +1,6 @@
-# Somatic mutation signal identification
+# Chorangioma mutation identification
+
+## Somatic mutation signal identification
 
 Mutational signal profiling from somatic variation to detect disrupted mechanisms in somatic cells (typically cancers)
 using https://github.com/AlexandrovLab/SigProfilerExtractor
@@ -6,9 +8,9 @@ using https://github.com/AlexandrovLab/SigProfilerExtractor
 _NOTE_: the documentation for the profiling tool isn't super awesome, and the options are sometimes wrong, consult
 source code
 
-## Loose and dirty setup of mutation signal identification
+### Loose and dirty setup of mutation signal identification
 
-### Docker on MacOS
+#### Docker on MacOS
 
 1. build the docker image for build 38 and the simple CLI tool for using it
     ```
@@ -19,10 +21,10 @@ source code
     docker run --rm -v "$(pwd)"/data:/usr/sigprof/vcfs -v "$(pwd)"/output:/usr/sigprof/results -it --entrypoint bash sigprof-testing:v0.0.1
     ```
 
-This did not end well... It ran with max resources on all CPUs and did not complete. It seemely stopped working after
+This did not end well... It ran with max resources on all CPUs and did not complete. It seemingly stopped working after
 about 24 hours and could have been due to a number of factors...
 
-### Conda environment on MacOS
+#### Conda environment on MacOS
 
 1. build the conda env
     1. `conda env create -f env/sigprofiler-env.yml`
@@ -32,7 +34,7 @@ about 24 hours and could have been due to a number of factors...
     1. `cd data`
     2. `python -c "from SigProfilerMatrixGenerator import install as genInstall; genInstall.install('GRCh38')"`
     3. _NOTE_: the profiler, or the script it's run from, must run from this directory as well due to it expecting a
-       certain path for tthis information being installed
+       certain path for this information being installed
     4. _WARNING_: This can be a long running process so don't run in a setting where the task could be accidentally
        terminated
 4. start an interactive python session
@@ -48,13 +50,13 @@ about 24 hours and could have been due to a number of factors...
                opportunity_genome="GRCh38",
                minimum_signatures=1,
                maximum_signatures=10,
-               cosmic_version=3.2,
+               cosmic_version=3.3,
                collapse_to_SBS96=False,
                get_all_signature_matrices=False)
        ```
 6. the profiler should complete relatively quickly with a single sample. Results will appear in `data/results/`
 
-## Setup and us of driver variant identification
+## Somatic Driver variant identification
 
 Testing new tool reported in
 ["Genome-wide mapping of somatic mutation rates uncovers drivers of cancer"](https://www.nature.com/articles/s41587-022-01353-8)
