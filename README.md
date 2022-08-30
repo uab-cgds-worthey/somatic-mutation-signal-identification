@@ -5,12 +5,47 @@
 Mutational signal profiling from somatic variation to detect disrupted mechanisms in somatic cells (typically cancers)
 using https://github.com/AlexandrovLab/SigProfilerExtractor
 
-_NOTE_: the documentation for the profiling tool isn't super awesome, and the options are sometimes wrong, consult
-source code
+_NOTE_: the documentation for the profiling tool doesn't help with realizing some of the customizations (like
+input/output paths or reference genome materials install paths) so it it recommended to check the
+[source code for SigProfiler](https://github.com/AlexandrovLab/SigProfilerExtractor/blob/master/SigProfilerExtractor/sigpro.py)
+when in doubt.
 
-### Loose and dirty setup of mutation signal identification
+## Running SigProfiler
+
+A simple wrapper has been composed to facilitate running SigProfiler to overcome some of the limitations of hard-coded
+paths built into the tool.
+
+Ensure that your somatic variant VCF files are all located in a directory and are uncompressed (SigProfiler can't work
+with Gzipped or Bgzipped VCFs yet).
+
+First build the Anaconda3 environment for the tool
+
+```
+conda env create -f env/sigprofiler-env.yml
+```
+
+activate the environment
+
+```
+conda activate sigprofiler
+```
+
+and run the wrapper
+
+```
+python src/profiler.py --vcf_dir /Users/bwilk/Documents/Projects/PVP/mutational_signatures/pvp_chorangioma --outdir mutsig_chorangioma
+```
+
+output will be contained in the `--outdir` directory which is created under the parent directory of `--vcf_dir`. The
+output directory being in the same location as the VCF input direcotry is an unfortunate limitation of SigProfiler and
+not something that can be changed.
+
+## Failed setup and use of SigProfiler
 
 #### Docker on MacOS
+
+This did not end well... It ran with max resources on all CPUs and did not complete. It seemingly stopped working after
+about 24 hours and could have been due to a number of factors...
 
 1. build the docker image for build 38 and the simple CLI tool for using it
     ```
@@ -21,10 +56,10 @@ source code
     docker run --rm -v "$(pwd)"/data:/usr/sigprof/vcfs -v "$(pwd)"/output:/usr/sigprof/results -it --entrypoint bash sigprof-testing:v0.0.1
     ```
 
-This did not end well... It ran with max resources on all CPUs and did not complete. It seemingly stopped working after
-about 24 hours and could have been due to a number of factors...
-
 #### Conda environment on MacOS
+
+This setup ran but was hard coded to certain paths and very specific to a single machine setup. Ultimately the more this
+tool was needing to be run the more difficult it was to use this.
 
 1. build the conda env
     1. `conda env create -f env/sigprofiler-env.yml`

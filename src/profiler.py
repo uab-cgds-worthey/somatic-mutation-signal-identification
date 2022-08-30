@@ -33,7 +33,7 @@ def check_install_ref(genome):
         os.path.dirname(inspect.getfile(ref_genome_downloader))
     )
     ref_genome_dir = (
-        Path(ref_genome_dir) / "references" / "chromosomes" / "tsb" / "genome"
+        Path(ref_genome_dir) / "references" / "chromosomes" / "tsb" / genome
     )
     if not ref_genome_dir.is_dir():
         print(f"Downloading {genome} Reference Genome materials for SigProfiler...")
@@ -130,4 +130,4 @@ if __name__ == "__main__":
     check_install_ref(ARGS.ref_genome)
 
     vcfdir = Path(ARGS.vcf_dir)
-    run_sigprofiler(vcfdir.parent, vcfdir.name, ARGS.outdir, ARGS.genome)
+    run_sigprofiler(vcfdir.parent, vcfdir.name, ARGS.outdir, ARGS.ref_genome)
