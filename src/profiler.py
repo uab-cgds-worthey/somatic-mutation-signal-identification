@@ -1,11 +1,10 @@
 import argparse
-import datetime
 import inspect
-from pathlib import Path
 import os
-from SigProfilerMatrixGenerator import install as genInstall
-from SigProfilerExtractor import sigpro as sig
+from pathlib import Path
 
+from SigProfilerExtractor import sigpro as sig
+from SigProfilerMatrixGenerator import install as genInstall
 
 REF_GENOMES = {"GRCh37", "GRCh38", "mm9", "mm10", "rn6"}
 
@@ -74,14 +73,14 @@ def is_valid_output_file(p, arg):
 
 def is_valid_file(p, arg):
     if not Path(os.path.expandvars(arg)).is_file():
-        p.error("The file '%s' does not exist!" % arg)
+        p.error(f"The file '{arg}' does not exist!")
     else:
         return os.path.expandvars(arg)
 
 
 def is_valid_dir(p, arg):
     if not Path(os.path.expandvars(arg)).is_dir():
-        p.error("The directory '%s' does not exist!" % arg)
+        p.error(f"The directory '{arg}' does not exist!")
     else:
         return os.path.expandvars(arg)
 
