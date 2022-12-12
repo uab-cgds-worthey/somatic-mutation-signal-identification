@@ -43,18 +43,18 @@ def check_install_ref(genome):
         )
 
 
-def run_sigprofiler(working_dir, vcf_input, output_dir_name, genome):
+def run_sigprofiler(input_type, working_dir, input_src, output_dir_name, genome):
 
     # SigProfiler bases input and output paths off of the current working directory so switching to the directory
     # where the VCF input directory is located before running the tool is needed to allow flexibility in input and
     # output location
     os.chdir(working_dir)
 
-    print(f"======= running the profiler for {str(working_dir / vcf_input)} ========")
+    print(f"======= running the profiler for {str(working_dir / input_src)} ========")
     sig.sigProfilerExtractor(
-        input_type="vcf",
+        input_type=input_type,
         output=output_dir_name,
-        input_data=vcf_input,
+        input_data=input_src,
         reference_genome=genome,
         opportunity_genome=genome,
         minimum_signatures=1,
@@ -95,20 +95,29 @@ if __name__ == "__main__":
     REQUIRED_ARGS = PARSER.add_argument_group("Required Arguments")
 
     REQUIRED_ARGS.add_argument(
+        "-od",
+        "--outdir",
+        help="Output directory name where the SigProfiler should write results, will appear at same level as `vcf_dir` or `matrix_file` exists",
+        required=True,
+        type=str,
+        metavar="\b",
+    )
+
+    INPUT_ARGS = PARSER.add_mutually_exclusive_group()
+
+    INPUT_ARGS.add_argument(
         "-vd",
         "--vcf_dir",
         help="Path to Directory containing VCFs to supply to SigProfiler",
-        required=True,
         type=lambda x: is_valid_dir(PARSER, x),
         metavar="\b",
     )
 
-    REQUIRED_ARGS.add_argument(
-        "-od",
-        "--outdir",
-        help="Output directory name where the SigProfiler should write results, will appear at same level as `vcf_dir` exists",
-        required=True,
-        type=str,
+    INPUT_ARGS.add_argument(
+        "-mf",
+        "--matrix_file",
+        help="Path to a TSV file contining the 96 SBS mutation counts across samples from SigMatrixGenerator for input to SigProfiler",
+        type=lambda x: is_valid_file(PARSER, x),
         metavar="\b",
     )
 
@@ -126,7 +135,18 @@ if __name__ == "__main__":
 
     ARGS = PARSER.parse_args()
 
+    if not ARGS.vcf_dir and not ARGS.matrix_file:
+        raise RuntimeError("Either a matrix file or a directory containing VCF files must be supplied for profiling!")
+
     check_install_ref(ARGS.ref_genome)
 
-    vcfdir = Path(ARGS.vcf_dir)
-    run_sigprofiler(vcfdir.parent, vcfdir.name, ARGS.outdir, ARGS.ref_genome)
+    input_src = None
+    input_path = None
+    if ARGS.matrix_file:
+        input_src = "matrix"
+        input_path = Path(ARGS.matrix_file)
+    else:
+        input_src = "vcf"
+        input_path = Path(ARGS.vcf_dir)
+
+    run_sigprofiler(input_src, input_path.parent, input_path.name, ARGS.outdir, ARGS.ref_genome)
