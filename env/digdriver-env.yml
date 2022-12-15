@@ -1,0 +1,9 @@
+name: digdriver
+
+channels:
+    - mutation_density
+    - bioconda
+    - conda-forge
+
+dependencies:
+    - digdriver=0.1
