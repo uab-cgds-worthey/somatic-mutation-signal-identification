@@ -61,6 +61,13 @@ if (args$setup) {
 
     # Now we download, install and initialize the H2O package for R.
     install.packages("h2o", type = "source", repos = "https://h2o-release.s3.amazonaws.com/h2o/rel-xu/1/R")
+
+    # setup ideafix
+    library(devtools)
+    h2o.init()
+    devtools::install_github("mmaitenat/ideafix", build_vignettes = FALSE)
+    # Shutdown H20 cluster when things are done processing
+    h2o.shutdown(prompt = FALSE)
 } else {
     if (is.null(args$input_dir) || is.null(args$output_dir) || is.null(args$ref_genome)) {
         write("Input and Output directory and referece genome paths must be specified!\n", stderr())
