@@ -38,10 +38,10 @@ if (args$setup) {
     print("Running setup...")
     ##### Needed for specific model version used by the tool and noted by failure of Vignette to build #####
     # install the language server for vscode
-    install.packages("languageserver", repos = "http://cran.us.r-project.org")
-    install.packages("httpgd", repos = "http://cran.us.r-project.org")
+    if (!require("languageserver")) install.packages("languageserver", repos = "http://cran.us.r-project.org")
+    if (!require("httpgd")) install.packages("httpgd", repos = "http://cran.us.r-project.org")
     # specific version release info https://h2o-release.s3.amazonaws.com/h2o/rel-xu/1/index.html
-    if (!require("devtools")) install.packages("devtools")
+    if (!require("devtools")) install.packages("devtools", repos = "http://cran.us.r-project.org")
 
     # The following two commands remove any previously installed H2O packages for R.
     if ("package:h2o" %in% search()) {
