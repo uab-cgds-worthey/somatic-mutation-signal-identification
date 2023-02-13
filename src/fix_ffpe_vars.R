@@ -34,17 +34,12 @@ parser$add_argument("-s", "--setup",
 # otherwise if options not found on command line then set defaults,
 args <- parser$parse_args()
 
-if (is.null(args$input_dir) || is.null(args$output_dir) || is.null(args$ref_genome)) {
-    write("Input and Output directory and referece genome paths must be specified!\n", stderr())
-    stop("Incorrect Input")
-}
-
 if (args$setup) {
     print("Running setup...")
     ##### Needed for specific model version used by the tool and noted by failure of Vignette to build #####
     # install the language server for vscode
-    install.packages("languageserver")
-    install.packages("httpgd")
+    install.packages("languageserver", repos = "http://cran.us.r-project.org")
+    install.packages("httpgd", repos = "http://cran.us.r-project.org")
     # specific version release info https://h2o-release.s3.amazonaws.com/h2o/rel-xu/1/index.html
     if (!require("devtools")) install.packages("devtools")
 
@@ -60,42 +55,47 @@ if (args$setup) {
     pkgs <- c("RCurl", "jsonlite")
     for (pkg in pkgs) {
         if (!(pkg %in% rownames(installed.packages()))) {
-            install.packages(pkg)
+            install.packages(pkg, repos = "http://cran.us.r-project.org")
         }
     }
 
     # Now we download, install and initialize the H2O package for R.
     install.packages("h2o", type = "source", repos = "https://h2o-release.s3.amazonaws.com/h2o/rel-xu/1/R")
+} else {
+    if (is.null(args$input_dir) || is.null(args$output_dir) || is.null(args$ref_genome)) {
+        write("Input and Output directory and referece genome paths must be specified!\n", stderr())
+        stop("Incorrect Input")
+    }
+
+    # load H2O and start up an H2O cluster
+    library("stringr")
+    library(h2o)
+    library(ideafix)
+    h2o.init()
+
+    if (!dir.exists(args$output_dir)) dir.create(args$output_dir)
+    vcf_files <- list.files(args$input_dir, pattern = ".+\\.vcf", full.names = TRUE)
+    for (vcf in vcf_files) {
+        cat("Fixing ", basename(vcf), "\n")
+        # get the descriptors for the variants using the VCF and ref genome
+        descriptors <- get_descriptors(vcf_filename = vcf, fasta_filename = args$ref_genome)
+
+        # predict with the random forest model
+        predictions_RF <- classify_variants(variant_descriptors = descriptors, algorithm = "RF")
+
+        # annotate deamination info filag to vcf for downstream filtering
+        outname <- str_replace(basename(vcf), ".vcf", ".ideafix")
+        annotate_deaminations(classification = predictions_RF, format = "vcf", vcf_filename = vcf, outfolder = args$output_dir, outname = outname)
+
+        # use BCFTools to filter out the deamination flagged variants from the VCF
+        output_vcf <- file.path(args$output_dir, paste(outname, ".vcf", sep = ""))
+        cmd <- sprintf("bcftools view --exclude 'INFO/DEAMINATION=\"deamination\"' %s -Ov -o %s_tmp.vcf; mv %s_tmp.vcf %s", output_vcf, output_vcf, output_vcf, output_vcf)
+        system(cmd, intern = TRUE)
+
+        # log the number of variants removed due to predicted deamination
+        cat(format(sum(predictions_RF$DEAMINATION == "deamination")), "variants predicted to be deamination induced and removed from", output_vcf, "\n")
+    }
+
+    # Shutdown H20 cluster when things are done processing
+    h2o.shutdown(prompt = FALSE)
 }
-
-# load H2O and start up an H2O cluster
-library("stringr")
-library(h2o)
-library(ideafix)
-h2o.init()
-
-if (!dir.exists(args$output_dir)) dir.create(args$output_dir)
-vcf_files <- list.files(args$input_dir, pattern = ".+\\.vcf", full.names = TRUE)
-for (vcf in vcf_files) {
-    cat("Fixing ", basename(vcf), "\n")
-    # get the descriptors for the variants using the VCF and ref genome
-    descriptors <- get_descriptors(vcf_filename = vcf, fasta_filename = args$ref_genome)
-
-    # predict with the random forest model
-    predictions_RF <- classify_variants(variant_descriptors = descriptors, algorithm = "RF")
-
-    # annotate deamination info filag to vcf for downstream filtering
-    outname <- str_replace(basename(vcf), ".vcf", ".ideafix")
-    annotate_deaminations(classification = predictions_RF, format = "vcf", vcf_filename = vcf, outfolder = args$output_dir, outname = outname)
-
-    # use BCFTools to filter out the deamination flagged variants from the VCF
-    output_vcf <- file.path(args$output_dir, paste(outname, ".vcf", sep = ""))
-    cmd <- sprintf("bcftools view --exclude 'INFO/DEAMINATION=\"deamination\"' %s -Ov -o %s_tmp.vcf; mv %s_tmp.vcf %s", output_vcf, output_vcf, output_vcf, output_vcf)
-    system(cmd, intern = TRUE)
-
-    # log the number of variants removed due to predicted deamination
-    cat(format(sum(predictions_RF$DEAMINATION == "deamination")), "variants predicted to be deamination induced and removed from", output_vcf, "\n")
-}
-
-# Shutdown H20 cluster when things are done processing
-h2o.shutdown(prompt = FALSE)
