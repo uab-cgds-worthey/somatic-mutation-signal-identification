@@ -64,6 +64,8 @@ if (args$setup) {
 
     # setup ideafix
     library(devtools)
+    library("stringr")
+    library(h2o)
     h2o.init()
     devtools::install_github("mmaitenat/ideafix", build_vignettes = FALSE)
     # Shutdown H20 cluster when things are done processing
