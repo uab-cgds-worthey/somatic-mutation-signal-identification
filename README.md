@@ -29,6 +29,14 @@ After the environment's been created activate it using
 conda activate fixffpe
 ```
 
+then run the setup/installer for all the R packages that need to be installed and used (only needed to be done once)
+
+```
+Rscript --vanilla src/fix_ffpe_vars.R --setup
+```
+
+Now you're ready to run the tool!
+
 ### Running Ideafix
 
 The simple wrapper built for Ideafix operates on directories containing VCF files and outputs all "fixed" VCF into an
