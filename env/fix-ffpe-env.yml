@@ -5,11 +5,9 @@ channels:
     - bioconda
 
 dependencies:
-    - conda-forge::r-base
     - conda-forge::r-argparse=2.2.1
     - conda-forge::openjdk=11
     - bioconda::samtools=1.16
     - bioconda::bcftools=1.16
-    - python=3.7
     - conda-forge::libgit2
     - conda-forge::pandoc
