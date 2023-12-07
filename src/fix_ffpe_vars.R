@@ -46,7 +46,6 @@ if (args$setup) {
     # setup ideafix
     library(devtools)
     library("stringr")
-    library(h2o)
     devtools::install_github("mmaitenat/ideafix", build_vignettes = FALSE)
 
     # The following two commands remove any previously installed H2O packages for R. # nolint

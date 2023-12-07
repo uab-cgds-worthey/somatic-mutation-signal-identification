@@ -1,9 +1,10 @@
 name: sigprofiler
 
 channels:
-  - conda-forge
+    - conda-forge
 
 dependencies:
-  - python==3.8
-  - pip:
-    - SigProfilerExtractor==1.1.10
+    - python==3.8
+    - pycairo==1.23.0
+    - pip:
+          - SigProfilerExtractor==1.1.21

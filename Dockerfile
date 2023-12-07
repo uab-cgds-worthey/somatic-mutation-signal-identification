@@ -1,14 +1,16 @@
-FROM python:3.9.11
+FROM python:3.8
 
-RUN mkdir -p /usr/sigprof
-WORKDIR /usr/sigprof
+RUN mkdir -p /data /usr/profiler
+WORKDIR /usr/profiler
 
-# install the tool
-RUN pip install --no-cache-dir SigProfilerExtractor==1.1.6
-
-# install the reference genomes specialized for the tool
-RUN python -c "from SigProfilerMatrixGenerator import install as genInstall; genInstall.install('GRCh38')"
+# install required underlying librarys and the tool
+RUN apt-get update && apt-get install -y \
+    libcairo2-dev \
+    pkg-config \
+    python3-dev \
+    && rm -rf /var/lib/apt/lists/* \
+    && pip install pycairo==1.23.0 SigProfilerExtractor==1.1.21 
 
 COPY src/profiler.py .
 
-ENTRYPOINT [ "python", "profiler.py" ]
+ENTRYPOINT ["python", "profiler.py", "-h"]
